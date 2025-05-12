@@ -2,6 +2,7 @@ package com.bacchiega.Restaurant.entity;
 
 import com.bacchiega.Restaurant.enums.OrderStatus;
 import com.bacchiega.Restaurant.service.client.ClientAuthService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "client_id")
     @ToString.Exclude
+    @JsonIgnore
     private Client client;
 
     // um pedido pode ter varios itens pedidos

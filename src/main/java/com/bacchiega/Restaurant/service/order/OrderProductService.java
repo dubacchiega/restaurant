@@ -1,16 +1,13 @@
 package com.bacchiega.Restaurant.service.order;
 
 import com.bacchiega.Restaurant.config.JWTUserData;
-import com.bacchiega.Restaurant.dto.client.OrderRequestDto;
-import com.bacchiega.Restaurant.dto.client.OrderResponseDto;
-import com.bacchiega.Restaurant.dto.client.ProductOrderedDto;
+import com.bacchiega.Restaurant.dto.client.*;
 import com.bacchiega.Restaurant.entity.Client;
 import com.bacchiega.Restaurant.entity.Order;
 import com.bacchiega.Restaurant.entity.Product;
 import com.bacchiega.Restaurant.entity.ProductOrder;
-import com.bacchiega.Restaurant.exception.ClientNotFoundException;
-import com.bacchiega.Restaurant.exception.OrderEmptyException;
-import com.bacchiega.Restaurant.exception.ProductNotFoundException;
+import com.bacchiega.Restaurant.enums.OrderStatus;
+import com.bacchiega.Restaurant.exception.*;
 import com.bacchiega.Restaurant.repository.ClientRepository;
 import com.bacchiega.Restaurant.repository.OrderRepository;
 import com.bacchiega.Restaurant.repository.ProductOrderRepository;
@@ -26,22 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderProductService {
 
-    /*
-    {
-        "clientId": 1,
-        "status": "PENDING",
-        "productOrders": [
-        {
-            "productId": 1,
-            "quantity": 2
-        },
-        {
-            "productId": 3,
-            "quantity": 1
-        }
-    ]
-    }
-     */
 
     private final ProductRepository productRepository;
     private final ClientRepository clientRepository;
@@ -89,6 +70,33 @@ public class OrderProductService {
         orderRepository.save(order);
 
         return new OrderResponseDto(client.getName(), productOrderedDtos, order.getTotal(), order.getStatus());
+    }
+
+    public ClientOrderDto getClientOrders(){
+        JWTUserData userData = ClientAuthService.getUser();
+        Client client = clientRepository.findById(userData.id()).orElseThrow(() -> new ClientNotFoundException("Client not found"));
+
+        List<Order> orders = client.getOrders();
+
+        if (orders.isEmpty()){
+            throw new OrderNotFoundException("Order not found");
+        }
+        ClientOrderDto clientOrderDto = new ClientOrderDto(client.getName(), orders.stream().map(
+                order -> new OrderDto(order.getId(), order.getStatus(), order.getTotal())).toList());
+
+        return clientOrderDto;
+
+//        for (Order order : orders) {
+//            List<ProductOrderedDto> productOrderedDtos = new ArrayList<>();
+//            for (ProductOrder productOrder : order.getProductOrders()) {
+//                productOrderedDtos.add(new ProductOrderedDto(productOrder.getProduct().getName(), productOrder.getQuantity(), productOrder.getSubtotal()));
+//            }
+//            clientOrderDto.orderList().add(new OrdersListDto(order.getId(), productOrderedDtos, order.getTotal(), order.getStatus()));
+//        }
+
+
+
+
     }
 
 }
