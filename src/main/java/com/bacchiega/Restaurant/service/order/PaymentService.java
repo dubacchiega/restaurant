@@ -28,6 +28,7 @@ public class PaymentService {
      */
 
     private final OrderRepository orderRepository;
+    private final MessageService messageService;
 
     public PayResponseDto payOrder(Long orderId) {
         JWTUserData userData = ClientAuthService.getUser();
@@ -40,7 +41,7 @@ public class PaymentService {
 
         order.setStatus(OrderStatus.PREPARING);
         orderRepository.save(order);
-        MessageService.sendMessage(OrderStatus.PREPARING.toString(), order.getClient().getPhone());
+        messageService.sendMessage(OrderStatus.PREPARING, order.getClient().getPhone());
 
         List<String> listOfProducts = order.getProductOrders().stream()
                 .map(product -> product.getProduct().getName())

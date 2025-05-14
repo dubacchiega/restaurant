@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ClientOrderController {
     }
 
     @PatchMapping("/pay")
-    public ResponseEntity<Map<String, Object>> payOrder(@RequestBody PayRequestDto payRequestDto) {
+    public ResponseEntity<Map<String, Object>> payOrder(@RequestBody ChangeStatusRequestDto payRequestDto) {
         PayResponseDto payResponseDto = paymentService.payOrder(payRequestDto.productId());
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -51,6 +50,15 @@ public class ClientOrderController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("message", "Orders retrieved successfully");
         response.put("data", ClientOrder);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/already")
+    public ResponseEntity<Map<String, Object>> alreadyOrder(@RequestBody ChangeStatusRequestDto requestDto) {
+        OrderResponseDto orderResponseDto = orderProductService.productFinalized(requestDto.productId());
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("message", "Order finalized successfully");
+        response.put("data", orderResponseDto);
         return ResponseEntity.ok().body(response);
     }
 }

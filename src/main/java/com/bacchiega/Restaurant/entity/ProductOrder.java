@@ -1,9 +1,11 @@
 package com.bacchiega.Restaurant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "ordered_product")
@@ -25,6 +27,7 @@ public class ProductOrder {
     // Vários itens do pedido (ProductOrder) pertencem a um único pedido (Order)
     @ManyToOne
     @JoinColumn(name = "orders_id")
+    @ToString.Exclude
     private Order orders;
 
     // Cada item do pedido (ProductOrder) está associado a um único produto (Product)

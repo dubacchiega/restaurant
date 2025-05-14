@@ -44,6 +44,7 @@ public class Order {
     // um pedido pode ter varios itens pedidos
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     @Column(name = "product_orders")
+    @ToString.Exclude
     private List<ProductOrder> productOrders;
 
     public Order(Client client) {

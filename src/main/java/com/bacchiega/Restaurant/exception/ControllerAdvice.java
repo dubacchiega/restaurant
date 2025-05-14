@@ -77,4 +77,12 @@ public class ControllerAdvice {
         error.put("message: ", "Order not found. Please verify the order information and try again.");
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(OrderStatusException.class)
+    public ResponseEntity<Map<String, String>> handleOrderStatusException(OrderStatusException e) {
+        Map<String, String> error = new LinkedHashMap<>();
+        error.put("error: ", e.getMessage());
+        error.put("message: ", "Order status is invalid. Please check the order status and try again.");
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }

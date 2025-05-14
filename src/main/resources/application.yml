@@ -21,5 +21,5 @@ restaurant:
     secret-key: ${JWT_SECRET_KEY}
 
 twilio:
-    account-sid: ${TWILIO_ACCOUNT_SID}
-    auth-token: ${TWILIO_AUTH_TOKEN}
+    account: ${TWILIO_ACCOUNT_SID}
+    auth: ${TWILIO_AUTH_TOKEN}

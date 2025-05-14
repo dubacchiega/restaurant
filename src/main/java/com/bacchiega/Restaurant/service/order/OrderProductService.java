@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +29,7 @@ public class OrderProductService {
     private final ClientRepository clientRepository;
     private final ProductOrderRepository orderProductRepository;
     private final OrderRepository orderRepository;
-
-//    TODO criar retorno para o createOrder
-//    TODO criar o endpoint de pagamento e finalização do pedido
-//    /orders/{id}/pay → muda de PENDING pra PREPARING /orders/{id}/finalize → muda pra FINALIZED
+    private final MessageService messageService;
 
     public OrderResponseDto createOrder(List<OrderRequestDto> orderDto) {
 
@@ -93,10 +91,35 @@ public class OrderProductService {
 //            }
 //            clientOrderDto.orderList().add(new OrdersListDto(order.getId(), productOrderedDtos, order.getTotal(), order.getStatus()));
 //        }
+    }
 
+    public OrderResponseDto productFinalized(Long idProduct){
+        Client client = clientRepository.findById(ClientAuthService.getUser().id()).get();
+        Order order = orderRepository.findByIdAndClientId(idProduct, client.getId())
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
+        if (order.getStatus() == OrderStatus.PENDING){
+            throw new OrderStatusException("Your order is pending payment and is not being prepared");
+        }
+        if (order.getStatus() == OrderStatus.FINALIZED){
+            throw new OrderStatusException("Your order is already finalized");
+        }
+        if (order.getStatus() == OrderStatus.PREPARING) {
+            order.setStatus(OrderStatus.FINALIZED);
+            orderRepository.save(order);
+            messageService.sendMessage(OrderStatus.FINALIZED, client.getPhone());
+        }
 
-
+        OrderResponseDto response = new OrderResponseDto(client.getName(),
+                order.getProductOrders().stream().map( // pegando os produtos pedido do meu order
+                        productOrder -> new ProductOrderedDto(
+                                productOrder.getProduct().getName(), // nos produtos pedidos, eu estou pegando o nome do produto referenciado
+                                productOrder.getQuantity(), // pegando a quantidade que foi pedida daquele produto
+                                productOrder.getSubtotal())).toList( // pegando o subtotal do produto pedido
+                ),
+                order.getTotal(),
+                order.getStatus());
+        return response;
     }
 
 }
